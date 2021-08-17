@@ -16,44 +16,41 @@ function App() {
 
   const getData = async () => {
     const client = new CogniteClient({ appId: 'Cognite SDK With Plotly' });
-    client.loginWithOAuth({
+    await client.loginWithOAuth({
       type: 'CDF_OAUTH',
       options: {
         project,
       },
     });
 
-    // Wait few seconds untill the authentication completes
-    setTimeout(async () => {
-      // Get a random timeseries object
-      const timeseries = await client.timeseries
-        .list()
-        .autoPagingToArray({ limit: 1 });
-      if (timeseries.length > 0) {
-        setTimeseries(timeseries[0]);
-        console.log('timeseries', timeseries[0]);
+    // Get a random timeseries object
+    const timeseries = await client.timeseries
+      .list()
+      .autoPagingToArray({ limit: 1 });
+    if (timeseries.length > 0) {
+      setTimeseries(timeseries[0]);
+      console.log('timeseries', timeseries[0]);
 
-        // Get data points for that time series
-        const data = await client.datapoints.retrieve({
-          items: [{ id: timeseries[0].id }],
-        });
+      // Get data points for that time series
+      const data = await client.datapoints.retrieve({
+        items: [{ id: timeseries[0].id }],
+      });
 
-        // Arrange timeseries data in to plotly format
-        setChartData([
-          {
-            x: (data[0].datapoints as DoubleDatapoint[]).map(
-              (point) => point.timestamp
-            ),
-            y: (data[0].datapoints as DoubleDatapoint[]).map(
-              (point) => point.value
-            ),
-            type: 'scatter',
-            mode: 'lines+markers',
-            marker: { color: 'red' },
-          },
-        ]);
-      }
-    }, 1000);
+      // Arrange timeseries data in to plotly format
+      setChartData([
+        {
+          x: (data[0].datapoints as DoubleDatapoint[]).map(
+            (point) => point.timestamp
+          ),
+          y: (data[0].datapoints as DoubleDatapoint[]).map(
+            (point) => point.value
+          ),
+          type: 'scatter',
+          mode: 'lines+markers',
+          marker: { color: 'red' },
+        },
+      ]);
+    }
   };
 
   // Return loading message while doing the authentication and data loading
